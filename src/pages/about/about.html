@@ -7,5 +7,17 @@
 </ion-header>
 
 <ion-content padding>
-
+  <ion-grid>
+    <ion-row justify-content-center align-items-center>
+      <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+        <ion-list>
+          <ion-item>
+            <ion-label>Ángulo Servomotor</ion-label>
+            <ion-input type="number" required pattern="^([0-9]{1,2}|1[0-7][0-9]|180)$" name="angle" ngModel></ion-input>
+          </ion-item>
+        </ion-list>
+        <button ion-button block type="submit" [disabled]="f.invalid">Enviar</button>
+      </form>
+    </ion-row>
+  </ion-grid>
 </ion-content>
