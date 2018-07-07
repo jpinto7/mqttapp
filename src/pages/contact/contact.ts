@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Chart } from 'chart.js';
+import { MQTTService } from "../../services/mqtt.service";
 
 @Component({
   selector: 'page-contact',
@@ -9,9 +10,21 @@ import { Chart } from 'chart.js';
 export class ContactPage {
   @ViewChild('lineCanvas') lineCanvas;
   lineChart: any;
-  //lineChartData = [];
+  lineChartData = [];
 
-  constructor(public navCtrl: NavController) {}
+  constructor(
+    public navCtrl: NavController,
+    public mqttService: MQTTService) {
+    if (this.mqttService.client && this.mqttService.client.connected) {
+      this.mqttService.client.subscribe('humidity');
+      this.mqttService.client.on('message', (topic, message) => {
+        console.log(message);
+        if (topic == 'humidity') {
+          this.updateChart(message);
+        }
+      });
+    }
+  }
 
   ionViewDidLoad() {
     this.lineChart = new Chart(this.lineCanvas.nativeElement, {
@@ -20,7 +33,7 @@ export class ContactPage {
         labels: [],
         datasets: [
           {
-            label: "Temperatura",
+            label: "Humedad (%)",
             fill: false,
             lineTension: 0.1,
             backgroundColor: "rgba(75,192,192,0.4)",
@@ -29,8 +42,8 @@ export class ContactPage {
             borderDash: [],
             borderDashOffset: 0.0,
             borderJoinStyle: 'miter',
-            pointBorderColor: "rgba(75,192,192,1)",
-            pointBackgroundColor: "#fff",
+            pointBorderColor: "rgba(75,192,192, 1)",
+            pointBackgroundColor: "#fffff",
             pointBorderWidth: 1,
             pointHoverRadius: 5,
             pointHoverBackgroundColor: "rgba(75,192,192,1)",
@@ -38,16 +51,20 @@ export class ContactPage {
             pointHoverBorderWidth: 2,
             pointRadius: 1,
             pointHitRadius: 10,
-            data: [],
+            data: this.lineChartData,
             spanGaps: false,
           }
         ]
       },
       options: {
+        responsive: true,
         scaleShowValues: true,
         scales: {
           yAxes: [{
             ticks: {
+              suggestedMin: 0,
+              suggestedMax: 100,
+              stepSize: 10,
               beginAtZero: true
             }
           }],
@@ -63,17 +80,11 @@ export class ContactPage {
         }
       }
     });
-    setInterval(() => {
-      this.updateChart();
-    }, 5000);
   }
 
-  updateChart() {
+  updateChart(data) {
     this.lineChart.data.labels.push(new Date());
-    this.lineChart.data.datasets.forEach(dataset => {
-      dataset.data.push(Math.random() * 10);
-    });
+    this.lineChartData.push(data);
     this.lineChart.update();
   }
-
 }

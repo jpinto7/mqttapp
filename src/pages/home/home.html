@@ -1,17 +1,26 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Home</ion-title>
+    <ion-title>Configuración</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  <h2>Welcome to Ionic!</h2>
-  <p>
-    This starter project comes with simple tabs-based layout for apps
-    that are going to primarily use a Tabbed UI.
-  </p>
-  <p>
-    Take a look at the <code>src/pages/</code> directory to add or change tabs,
-    update any existing page or create new pages.
-  </p>
+  <ion-grid>
+    <ion-row justify-content-center align-items-center>
+      <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+        <ion-list>
+          <ion-item>
+            <ion-label>Hostname</ion-label>
+            <ion-input type="text" required name="hostname" ngModel></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label>Puerto</ion-label>
+            <ion-input type="number" required name="port" ngModel></ion-input>
+          </ion-item>
+        </ion-list>
+        <button ion-button block type="submit" [disabled]="f.invalid">Conectar</button>
+        <button ion-button block type="button" color="danger" (click)="onDisconnect()" [disabled]="(mqttService.client === null || mqttService.client === undefined) || (mqttService.client && mqttService.client.disconnected)">Desconectar</button>
+      </form>
+    </ion-row>
+  </ion-grid>
 </ion-content>
